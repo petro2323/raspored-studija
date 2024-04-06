@@ -4,16 +4,15 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
-import models.Saradnik;
+import models.Student;
 
 @Dependent
-public class SaradnikService {
-
+public class StudentService {
 	@Inject
 	private EntityManager em;
 	
 	@Transactional
-	public Saradnik createAssociate(Saradnik s) {
+	public Student createStudent(Student s) {
 		return em.merge(s);
 	}
 }
