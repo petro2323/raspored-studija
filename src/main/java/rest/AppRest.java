@@ -11,54 +11,46 @@ import models.Associate;
 import models.Professor;
 import models.Student;
 import models.YearOfStudy;
-import service.AcademicTitleService;
-import service.AssociateService;
-import service.ProfessorService;
-import service.StudentService;
-import service.YearOfStudyService;
+import service.ModelsService;
 
 @Path("/schedule")
 public class AppRest {
 	
 	@Inject
-	private AcademicTitleService ats;
-	private AssociateService as;
-	private ProfessorService ps;
-	private StudentService ss;
-	private YearOfStudyService yoss;
+	private ModelsService m;
 	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/create/academic-title")
 	public Response createAcademicTitle(AcademicTitle at) {
-		return Response.ok(ats.createAcademicTitle(at)).build();
+		return Response.ok(m.createAcademicTitle(at)).build();
 	}
 	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/create/associate")
 	public Response createAssociate(Associate a) {
-		return Response.ok(as.createAssociate(a)).build();
+		return Response.ok(m.createAssociate(a)).build();
 	}
 	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/create/professor")
 	public Response createProfessor(Professor p) {
-		return Response.ok(ps.createProfessor(p)).build();
+		return Response.ok(m.createProfessor(p)).build();
 	}
 	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/create/student")
 	public Response createStudent(Student s) {
-		return Response.ok(ss.createStudent(s)).build();
+		return Response.ok(m.createStudent(s)).build();
 	}
 	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/create/year-of-study")
 	public Response createYearOfStudy(YearOfStudy yos) {
-		return Response.ok(yoss.createYearOfStudy(yos)).build();
+		return Response.ok(m.createYearOfStudy(yos)).build();
 	}
 }
