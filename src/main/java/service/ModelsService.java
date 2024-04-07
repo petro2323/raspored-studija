@@ -4,11 +4,7 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
-import models.AcademicTitle;
-import models.Associate;
-import models.Professor;
-import models.Student;
-import models.YearOfStudy;
+import models.*;
 
 @Dependent
 public class ModelsService {
@@ -39,5 +35,35 @@ public class ModelsService {
 	@Transactional
 	public YearOfStudy createYearOfStudy(YearOfStudy y) {
 		return em.merge(y);
+	}
+	
+	@Transactional
+	public Semester createSemester(Semester s) {
+		return em.merge(s);
+	}
+	
+	@Transactional
+	public Subject createSubject(Subject s) {
+		return em.merge(s);
+	}
+	
+	@Transactional
+	public Classroom createClassRoom(Classroom c) {
+		return em.merge(c);
+	}
+	
+	@Transactional
+	public DaysOfTheWeek createDaysOfTheWeek(DaysOfTheWeek d) {
+		return em.merge(d);
+	}
+	
+	@Transactional
+	public LectureHours createLectureHours(LectureHours l) {
+		return em.merge(l);
+	}
+	
+	@Transactional
+	public StudentSubject createStudentSubject(StudentSubject ss) {
+		return em.merge(ss);
 	}
 }
