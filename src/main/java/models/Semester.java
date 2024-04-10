@@ -1,16 +1,22 @@
 package models;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 @Entity
 public class Semester {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
+	
+	@Column(unique = true)
+	@Pattern(regexp = "^(M{0,3})(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$", message = "Invalid input! Please enter a roman number for example: I, IV, VI, X...")
+	@NotBlank(message = "Roman number not found! Must enter a roman number!")
 	private String roman_number;
 
 	public Long getId() {

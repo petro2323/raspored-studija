@@ -1,17 +1,20 @@
 package models;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 public class YearOfStudy {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
-	private int number;
+	
+	@Column(unique = true)
+	@NotBlank(message = "The type is blank, must enter the type of the study year!")
 	private String type;
 
 	public Long getId() {
@@ -20,14 +23,6 @@ public class YearOfStudy {
 
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	public int getNumber() {
-		return number;
-	}
-
-	public void setNumber(int number) {
-		this.number = number;
 	}
 
 	public String getType() {

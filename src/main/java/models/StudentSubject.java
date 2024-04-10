@@ -5,6 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 public class StudentSubject {
@@ -13,9 +14,11 @@ public class StudentSubject {
 	private Long id;
 
 	@ManyToOne
+	@NotNull(message = "Input must contain a student!")
 	private Student student;
 
 	@ManyToOne
+	@NotNull(message = "Input must contain a subject!")
 	private Subject subject;
 
 	public Long getId() {

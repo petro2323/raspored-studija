@@ -2,6 +2,8 @@ package models;
 
 import java.util.Date;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,9 +14,14 @@ public class Associate {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
+	
+	@NotBlank(message = "Associate must have a first name!")
 	private String first_name;
+	
+	@NotBlank(message = "Associate must have a last name!")
 	private String last_name;
+	
+	@NotNull(message = "Associate must have a birthday!")
 	private Date date_of_birth;
 
 	public Long getId() {

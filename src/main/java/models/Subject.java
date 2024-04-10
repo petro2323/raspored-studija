@@ -5,23 +5,30 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 public class Subject {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
+	
+	@NotBlank(message = "Subject must have a title name!")
 	private String title;
+	
+	@NotNull(message = "Subject must have an ECTS number!")
 	private int ects;
 
 	@ManyToOne
+	@NotNull(message = "Subject must have a professor!")
 	private Professor professor;
 
 	@ManyToOne
 	private Associate associate;
 
 	@ManyToOne
+	@NotNull(message = "Subject must have a semester!")
 	private Semester semester;
 
 	public Long getId() {

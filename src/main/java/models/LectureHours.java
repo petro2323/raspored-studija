@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 public class LectureHours {
@@ -15,14 +16,18 @@ public class LectureHours {
 	private Long id;
 
 	@ManyToOne
+	@NotNull(message = "Lecture must have a subject!")
 	private Subject subject;
 
 	@ManyToOne
+	@NotNull(message = "Lecture must have a classroom!")
 	private Classroom classroom;
 
 	@ManyToOne
+	@NotNull(message = "Lecture must have a day!")
 	private DaysOfTheWeek lecture_day;
-
+	
+	@NotNull(message = "The time of the lecture must be inserted.")
 	private LocalTime time_of_lecture;
 
 	public Long getId() {

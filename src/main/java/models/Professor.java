@@ -7,18 +7,26 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 public class Professor {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
+	
+	@NotBlank(message = "Professor must have a first name!")
 	private String first_name;
+	
+	@NotBlank(message = "Professor must have a last name!")
 	private String last_name;
+	
+	@NotNull(message = "Professor must have a birthday!")
 	private Date date_of_birth;
 
 	@ManyToOne
+	@NotNull(message = "Professor must have an academic title!")
 	private AcademicTitle academic_title;
 
 	public Long getId() {
