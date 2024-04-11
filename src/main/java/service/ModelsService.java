@@ -8,7 +8,7 @@ import models.*;
 
 import java.util.List;
 
-import dto.LectureDTO;
+import dto.*;
 
 @Dependent
 public class ModelsService {
@@ -83,5 +83,15 @@ public class ModelsService {
 				+ "INNER JOIN Professor pro ON pro.id = s.professor.id\r\n"
 				+ "INNER JOIN Semester se ON se.id = s.semester.id\r\n"
 				+ "WHERE se.roman_number = :semester", LectureDTO.class).setParameter("semester", semester).getResultList();
+	}
+	
+	@Transactional
+	public List<ProfessorDTO> getProfessorsByAcademicTitle(String title_name) {
+		return em.createQuery("SELECT new ProfessorDTO(pro.first_name, pro.last_name,\r\n"
+				+ "pro.date_of_birth)\r\n"
+				+ "FROM Professor pro\r\n"
+				+ "INNER JOIN AcademicTitle ac ON\r\n"
+				+ "ac.id = pro.academic_title.id\r\n"
+				+ "WHERE ac.title_name = :title_name", ProfessorDTO.class).setParameter("title_name", title_name).getResultList();
 	}
 }
