@@ -1,12 +1,17 @@
 package rest;
 
+import java.util.List;
+
 import org.eclipse.microprofile.openapi.annotations.Operation;
 
+import dto.LectureDTO;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import models.*;
@@ -104,5 +109,11 @@ public class ApplicationRest {
 	@Path("/create/student-subject")
 	public Response createStudentSubject(@Valid StudentSubject ss) {
 		return Response.ok(m.createStudentSubject(ss)).build();
+	}
+	
+	@GET
+	@Path("/view/subject-schedule")
+	public List<LectureDTO> getLecturesFromSemester(@QueryParam("semester") String semester) {
+		return m.getLecturesFromSemester(semester);
 	}
 }
