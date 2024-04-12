@@ -6,6 +6,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import models.*;
 
+import java.time.LocalTime;
 import java.util.List;
 
 import dto.*;
@@ -103,14 +104,38 @@ public class ModelsService {
 						+ "INNER JOIN Subject su ON\r\n" + "su.id = ss.subject.id\r\n" + "WHERE su.title = :subject",
 				StudentDTO.class).setParameter("subject", subject).getResultList();
 	}
-	
+
 	@Transactional
 	public List<AcademicTitleDTO> getAllAcademicTitles() {
-		return em.createQuery("SELECT new AcademicTitleDTO(a.title_name) FROM AcademicTitle a", AcademicTitleDTO.class).getResultList();
+		return em.createQuery("SELECT new AcademicTitleDTO(a.title_name) FROM AcademicTitle a", AcademicTitleDTO.class)
+				.getResultList();
 	}
-	
+
 	@Transactional
 	public List<SubjectDTO> getAllSubjects() {
-		return em.createQuery("SELECT new SubjectDTO(s.title, s.ects) FROM Subject s", SubjectDTO.class).getResultList();
+		return em.createQuery("SELECT new SubjectDTO(s.title, s.ects) FROM Subject s", SubjectDTO.class)
+				.getResultList();
+	}
+
+	@Transactional
+	public List<ShiftDTO> getSubjectsByShift(String condition, int time) {
+		String realCondition = "";
+		LocalTime realTime = LocalTime.of(time, 0);
+
+		if (condition.equalsIgnoreCase("before")) {
+			realCondition = "<";
+		} else if (condition.equalsIgnoreCase("after")) {
+			realCondition = ">";
+		}
+
+		return em.createQuery("SELECT new ShiftDTO(s.title AS subject, s.ects,\r\n"
+				+ "CONCAT(asi.first_name,' ',asi.last_name) AS associate,\r\n"
+				+ "CONCAT(pro.first_name,' ',pro.last_name) AS professor,\r\n"
+				+ "se.roman_number AS semester, l.time_of_lecture) FROM\r\n" + "Subject s\r\n"
+				+ "LEFT JOIN Associate asi ON\r\n" + "asi.id = s.associate.id\r\n" + "INNER JOIN Professor pro ON\r\n"
+				+ "pro.id = s.professor.id\r\n" + "INNER JOIN Semester se ON\r\n" + "se.id = s.semester.id\r\n"
+				+ "INNER JOIN LectureHours l ON\r\n" + "s.id = l.subject.id\r\n"
+				+ "WHERE l.time_of_lecture " + realCondition + ":time", ShiftDTO.class).setParameter("time", realTime)
+				.getResultList();
 	}
 }

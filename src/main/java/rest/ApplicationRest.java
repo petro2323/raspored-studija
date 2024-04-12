@@ -150,4 +150,14 @@ public class ApplicationRest {
 	public List<StudentDTO> getStudentsBySubject(@QueryParam("subject") String subject) {
 		return m.getStudentsBySubject(subject);
 	}
+	
+	@GET
+	@Operation(summary = "Time lecture of a subject", description = "It lets the user see a list of subjects that are being lectured before or after a specific time." +
+	"<br><br>The condition parameter only accepts values <u>Before</u> and <u>After</u>. The time parameter only accepts integer values."
+			+ "<br><i>Examples</i>: Before 12 or After 15"
+	+ "<br><br><u>The condition parameter supports case-insensitive matching.</u>")
+	@Path("/view/subject-by-time")
+	public List<ShiftDTO> getSubjectsByShift(@QueryParam("condition") String condition, @QueryParam("time") int time) {
+		return m.getSubjectsByShift(condition, time);
+	}
 }
