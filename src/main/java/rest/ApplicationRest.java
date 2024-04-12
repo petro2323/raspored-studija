@@ -112,18 +112,42 @@ public class ApplicationRest {
 	}
 	
 	@GET
-	@Operation(summary = "Subject schedule for the semester", description = "It lets the user insert the semester number to view the schedule made for the subjects.")
-	@Path("/view/subject-schedule")
-	public List<LectureDTO> getLecturesFromSemester(@QueryParam("semester") String semester) {
-		return m.getLecturesFromSemester(semester);
+	@Operation(summary = "View all academic titles", description = "It lets the user see all the academic titles the institution contains.")
+	@Path("/view/all-academic-titles")
+	public List<AcademicTitleDTO> getAllAcademicTitles() {
+		return m.getAllAcademicTitles();
 	}
 	
 	@GET
-	@Operation(summary = "Professor by academic title", description = "It lets the user see which professors contain the required academic title." +
-	"<br><br>The institution contains professors with the next academic titles: <br>1.redovni profesor <br>2.vanredni profesor <br>3.docent" +
-			"<br><br><b>Warning</b>: The application supports case-insensitive matching, but it requires the academic titles to be in the correct order; otherwise, it may fail to find the desired result. ")
+	@Operation(summary = "View all subjects", description = "It lets the user see all subjects the institution contains.")
+	@Path("/view/all-subjects")
+	public List<SubjectDTO> getAllSubjects() {
+		return m.getAllSubjects();
+	}
+	
+	@GET
+	@Operation(summary = "Subject schedule for the semester", description = "It lets the user insert the semester number to view the schedule made for the subjects."
+			+ "<br><br><b>Warning</b>: The function supports case-insensitive matching, but it requires for the input to be a roman number. For example: I, II, IV, V, etc.")
+	@Path("/view/subject-schedule")
+	public List<LectureDTO> getLecturesFromSemester(@QueryParam("semester") String semester) {
+		return m.getLecturesFromSemester(semester.toUpperCase());
+	}
+	
+	@GET
+	@Operation(summary = "Professors by academic title", description = "It lets the user see which professors contain the required academic title." +
+	"<br><br>The user can search for all academic titles by using the <u>/view/all-academic-titles</u> function." +
+			"<br><br><b>Warning</b>: The function supports case-insensitive matching, but it requires the academic title to be in the correct order; otherwise, it may fail to find the desired result.")
 	@Path("/view/professor-by-academic-title")
 	public List<ProfessorDTO> getProfessorsByAcademicTitle(@QueryParam("title_name") String title_name) {
 		return m.getProfessorsByAcademicTitle(title_name.toLowerCase());
+	}
+	
+	@GET
+	@Operation(summary = "Students enrolled in the course", description = "It lets the user see a list of students that are enrolled in the course that is lecturing the required subject."
+	+ "<br><br>The user can search for all subjects by using the <u>/view/all-subjects</u> function." +
+			"<br><br><b>Warning</b>: The function requires the title of the subject to be written in the correct order; otherwise, it may fail to find the desired result.")
+	@Path("/view/students-on-subject")
+	public List<StudentDTO> getStudentsBySubject(@QueryParam("subject") String subject) {
+		return m.getStudentsBySubject(subject);
 	}
 }
