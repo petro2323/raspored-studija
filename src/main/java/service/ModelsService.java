@@ -81,11 +81,11 @@ public class ModelsService {
 		String condition = "";
 
 		if (!roomQuery.isEmpty() && !semesterQuery.isEmpty()) {
-			condition = "AND cl.room_number = '" + room_number + "' AND se.roman_number = '" + semester + "'";
+			condition = "AND cl.room_number = " + roomQuery + " AND se.roman_number = " + semesterQuery;
 		} else if (!semesterQuery.isEmpty()) {
-			condition = "AND se.roman_number = '" + semester + "'";
+			condition = "AND se.roman_number = " + semesterQuery;
 		} else if (!roomQuery.isEmpty()) {
-			condition = "AND cl.room_number = '" + room_number + "'";
+			condition = "AND cl.room_number = " + roomQuery;
 		}
 
 		return em.createQuery("SELECT new LectureDTO(s.title, cl.room_number, d.day_name, l.time_of_lecture, CONCAT(pro.first_name, ' ', pro.last_name) AS professor, CONCAT(asi.first_name, ' ', asi.last_name) AS associate) "

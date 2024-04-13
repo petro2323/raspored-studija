@@ -148,12 +148,15 @@ public class ApplicationRest {
 	}
 
 	@GET
-	@Operation(summary = "Students enrolled in the course", description = "It lets the user see a list of students that are enrolled in the course that is lecturing the required subject."
+	@Operation(summary = "Students enrolled in the course", description = "It lets the user see the <u>number</u> and <u>list</u> of students that are enrolled in the course that is lecturing the required subject."
 			+ "<br><br>The user can search for all subjects by using the <u>/view/all-subjects</u> function."
 			+ "<br><br><b>Warning</b>: The function requires the title of the subject to be written in the correct order with matching the case of the letters; otherwise, it may fail to find the desired result.")
 	@Path("/view/students-on-subject")
-	public List<StudentDTO> getStudentsBySubject(@QueryParam("subject") String subject) {
-		return m.getStudentsBySubject(subject);
+	public StudentsWithCount getStudentsBySubject(@QueryParam("subject") String subject) {
+		List<StudentDTO> students = m.getStudentsBySubject(subject);
+		int numberOfStudents = students.size();
+		
+		return new StudentsWithCount(students, numberOfStudents);
 	}
 
 	@GET
