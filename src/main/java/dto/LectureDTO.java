@@ -1,24 +1,26 @@
 package dto;
 
 import java.time.LocalTime;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class LectureDTO {
 	private String title;
 	private String room_number;
 	private String day_name;
 	private LocalTime time_of_lecture;
-	private String first_name;
-	private String last_name;
+	private String professor;
+	private String associate;
 
-	public LectureDTO(String title, String room_number, String day_name, LocalTime time_of_lecture, String first_name,
-			String last_name) {
+	public LectureDTO(String title, String room_number, String day_name, LocalTime time_of_lecture, String professor,
+			String associate) {
 		super();
 		this.title = title;
 		this.room_number = room_number;
 		this.day_name = day_name;
 		this.time_of_lecture = time_of_lecture;
-		this.first_name = first_name;
-		this.last_name = last_name;
+		this.professor = professor;
+		this.associate = associate;
 	}
 
 	public String getTitle() {
@@ -53,20 +55,20 @@ public class LectureDTO {
 		this.time_of_lecture = time_of_lecture;
 	}
 
-	public String getFirst_name() {
-		return first_name;
+	public String getProfessor() {
+		return professor;
 	}
 
-	public void setFirst_name(String first_name) {
-		this.first_name = first_name;
+	public void setProfessor(String professor) {
+		this.professor = professor;
 	}
 
-	public String getLast_name() {
-		return last_name;
+	public String getAssociate() {
+		return associate;
 	}
 
-	public void setLast_name(String last_name) {
-		this.last_name = last_name;
+	public void setAssociate(String associate) {
+		this.associate = associate;
 	}
 
 }

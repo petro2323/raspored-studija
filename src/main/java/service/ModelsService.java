@@ -73,16 +73,28 @@ public class ModelsService {
 	}
 
 	@Transactional
-	public List<LectureDTO> getLecturesFromSemester(String semester) {
-		return em.createQuery(
-				"SELECT new LectureDTO(s.title, cl.room_number,\r\n" + "d.day_name, l.time_of_lecture,\r\n"
-						+ "pro.first_name, pro.last_name)\r\n" + "FROM LectureHours l\r\n"
-						+ "INNER JOIN Subject s ON s.id = l.subject.id\r\n"
-						+ "INNER JOIN Classroom cl ON cl.id = l.classroom.id\r\n"
-						+ "INNER JOIN DaysOfTheWeek d ON d.id = l.lecture_day.id\r\n"
-						+ "INNER JOIN Professor pro ON pro.id = s.professor.id\r\n"
-						+ "INNER JOIN Semester se ON se.id = s.semester.id\r\n" + "WHERE se.roman_number = :semester",
-				LectureDTO.class).setParameter("semester", semester).getResultList();
+	public List<LectureDTO> getLecturesFromSemester(String semester, String room_number) {
+
+		String roomQuery = (room_number == null) ? "" : "'" + room_number + "'";
+		String semesterQuery = (semester == null) ? "" : "'" + semester + "'";
+
+		String condition = "";
+
+		if (!roomQuery.isEmpty() && !semesterQuery.isEmpty()) {
+			condition = "AND cl.room_number = '" + room_number + "' AND se.roman_number = '" + semester + "'";
+		} else if (!semesterQuery.isEmpty()) {
+			condition = "AND se.roman_number = '" + semester + "'";
+		} else if (!roomQuery.isEmpty()) {
+			condition = "AND cl.room_number = '" + room_number + "'";
+		}
+
+		return em.createQuery("SELECT new LectureDTO(s.title, cl.room_number, d.day_name, l.time_of_lecture, CONCAT(pro.first_name, ' ', pro.last_name) AS professor, CONCAT(asi.first_name, ' ', asi.last_name) AS associate) "
+				+ "FROM LectureHours l " + "INNER JOIN Subject s ON s.id = l.subject.id "
+				+ "INNER JOIN Classroom cl ON cl.id = l.classroom.id "
+				+ "INNER JOIN DaysOfTheWeek d ON d.id = l.lecture_day.id "
+				+ "INNER JOIN Professor pro ON pro.id = s.professor.id "
+				+ "LEFT JOIN Associate asi ON asi.id = s.associate.id "
+				+ "INNER JOIN Semester se ON se.id = s.semester.id WHERE 1=1 " + condition, LectureDTO.class).getResultList();
 	}
 
 	@Transactional
@@ -134,8 +146,7 @@ public class ModelsService {
 				+ "se.roman_number AS semester, l.time_of_lecture) FROM\r\n" + "Subject s\r\n"
 				+ "LEFT JOIN Associate asi ON\r\n" + "asi.id = s.associate.id\r\n" + "INNER JOIN Professor pro ON\r\n"
 				+ "pro.id = s.professor.id\r\n" + "INNER JOIN Semester se ON\r\n" + "se.id = s.semester.id\r\n"
-				+ "INNER JOIN LectureHours l ON\r\n" + "s.id = l.subject.id\r\n"
-				+ "WHERE l.time_of_lecture " + realCondition + ":time", ShiftDTO.class).setParameter("time", realTime)
-				.getResultList();
+				+ "INNER JOIN LectureHours l ON\r\n" + "s.id = l.subject.id\r\n" + "WHERE l.time_of_lecture "
+				+ realCondition + ":time", ShiftDTO.class).setParameter("time", realTime).getResultList();
 	}
 }
