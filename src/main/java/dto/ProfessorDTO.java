@@ -2,9 +2,12 @@ package dto;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 public class ProfessorDTO {
 	private String first_name;
 	private String last_name;
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date date_of_birth;
 
 	public ProfessorDTO(String first_name, String last_name, Date date_of_birth) {

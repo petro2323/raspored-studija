@@ -1,6 +1,8 @@
 package dto;
 
 import java.time.LocalTime;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -8,6 +10,7 @@ public class LectureDTO {
 	private String title;
 	private String room_number;
 	private String day_name;
+	@JsonFormat(pattern = "hh:mm")
 	private LocalTime time_of_lecture;
 	private String professor;
 	private String associate;
