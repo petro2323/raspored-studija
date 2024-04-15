@@ -124,6 +124,13 @@ public class ApplicationRest {
 	public List<SubjectDTO> getAllSubjects() {
 		return m.getAllSubjects();
 	}
+	
+	@GET
+	@Operation(summary = "View all study years", description = "It lets the user see all study years the institution contains.")
+	@Path("/view/all-years-of-study")
+	public List<YearOfStudyDTO> getAllStudyYears() {
+		return m.getAllStudyYears();
+	}
 
 	@GET
 	@Operation(summary = "Subject schedule for the semester", description = "It lets the user see the courses schedule for the required <u>semester</u>. <br>It also lets the user see which courses are being held in the required <u>classroom</u>."
@@ -141,10 +148,11 @@ public class ApplicationRest {
 	@GET
 	@Operation(summary = "Professors by academic title", description = "It lets the user see which professors contain the required academic title."
 			+ "<br><br>The user can search for all academic titles by using the <u>/view/all-academic-titles</u> function."
+			+ "<br><br>If the title_name is <u>blank</u>, the function will by default <u>return</u> all professors from the institution."
 			+ "<br><br><b>Warning</b>: The function supports case-insensitive matching, but it requires the academic title to be in the correct order; otherwise, it may fail to find the desired result.")
 	@Path("/view/professor-by-academic-title")
 	public List<ProfessorDTO> getProfessorsByAcademicTitle(@QueryParam("title_name") String title_name) {
-		return m.getProfessorsByAcademicTitle(title_name.toLowerCase());
+		return m.getProfessorsByAcademicTitle((title_name == null) ? null : title_name.toLowerCase());
 	}
 
 	@GET
@@ -167,5 +175,17 @@ public class ApplicationRest {
 	@Path("/view/subject-by-time")
 	public List<ShiftDTO> getSubjectsByShift(@QueryParam("condition") String condition, @QueryParam("time") int time) {
 		return m.getSubjectsByShift(condition, time);
+	}
+	
+	@GET
+	@Operation(summary = "Students by study year", description = "It lets the user see the <u>number</u> and <u>list</u> of students by the required study year."
+			+ "<br><br>The user can search for all study years by using the <u>/view/all-years-of-study</u> function."
+			+ "<br><br><b>Warning</b>: The function supports case-insensitive matching, but it requires the study year to be in the correct order; otherwise, it may fail to find the desired result.")
+	@Path("/view/student-by-study-year")
+	public StudentsWithCount getStudentsByYearOfStudy(@QueryParam("year_of_study") String year_of_study) {
+		List<StudentDTO> students = m.getStudentsByYearOfStudy(year_of_study);
+		int numberOfStudents = students.size();
+		
+		return new StudentsWithCount(students, numberOfStudents);
 	}
 }

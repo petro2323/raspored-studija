@@ -99,13 +99,21 @@ public class ModelsService {
 
 	@Transactional
 	public List<ProfessorDTO> getProfessorsByAcademicTitle(String title_name) {
+		
+		String titleNameQuery = (title_name == null) ? "" : "'" + title_name + "'";
+		
+		String condition = "";
+		
+		if(!titleNameQuery.isEmpty()) {
+			condition = "AND ac.title_name = " + titleNameQuery;
+		}
+		
 		return em
 				.createQuery(
 						"SELECT new ProfessorDTO(pro.first_name, pro.last_name,\r\n" + "pro.date_of_birth)\r\n"
 								+ "FROM Professor pro\r\n" + "INNER JOIN AcademicTitle ac ON\r\n"
-								+ "ac.id = pro.academic_title.id\r\n" + "WHERE ac.title_name = :title_name",
-						ProfessorDTO.class)
-				.setParameter("title_name", title_name).getResultList();
+								+ "ac.id = pro.academic_title.id\r\n" + "WHERE 1=1 " + condition,
+						ProfessorDTO.class).getResultList();
 	}
 
 	@Transactional
@@ -128,6 +136,11 @@ public class ModelsService {
 		return em.createQuery("SELECT new SubjectDTO(s.title, s.ects) FROM Subject s", SubjectDTO.class)
 				.getResultList();
 	}
+	
+	@Transactional
+	public List<YearOfStudyDTO> getAllStudyYears() {
+		return em.createQuery("SELECT new YearOfStudyDTO(type) FROM YearOfStudy", YearOfStudyDTO.class).getResultList();
+	}
 
 	@Transactional
 	public List<ShiftDTO> getSubjectsByShift(String condition, int time) {
@@ -148,5 +161,13 @@ public class ModelsService {
 				+ "pro.id = s.professor.id\r\n" + "INNER JOIN Semester se ON\r\n" + "se.id = s.semester.id\r\n"
 				+ "INNER JOIN LectureHours l ON\r\n" + "s.id = l.subject.id\r\n" + "WHERE l.time_of_lecture "
 				+ realCondition + ":time", ShiftDTO.class).setParameter("time", realTime).getResultList();
+	}
+	
+	@Transactional
+	public List<StudentDTO> getStudentsByYearOfStudy(String year_of_study) {
+		return em.createQuery("SELECT new StudentDTO(s.first_name, s.last_name, s.index_number)\r\n"
+				+ "FROM Student s\r\n"
+				+ "INNER JOIN YearOfStudy y ON y.id = s.year_of_study.id\r\n"
+				+ "WHERE y.type = :year_of_study", StudentDTO.class).setParameter("year_of_study", year_of_study).getResultList();
 	}
 }
