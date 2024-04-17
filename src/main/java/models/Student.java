@@ -2,12 +2,14 @@ package models;
 
 import java.util.Date;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -17,24 +19,35 @@ public class Student {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
+
 	@NotBlank(message = "Student must have a first name!")
 	private String first_name;
-	
+
 	@NotBlank(message = "Student must have a last name!")
 	private String last_name;
 
 	@ManyToOne
 	@NotNull(message = "Student must be assigned a year of study!")
 	private YearOfStudy year_of_study;
-	
+
 	@NotNull(message = "Student must have a birthday!")
 	private Date date_of_birth;
-	
+
 	@Column(unique = true)
 	@Pattern(regexp = "^([1-9][0-9]?-[1-9][0-9])$", message = "Invalid index number! Must be in pattern XX-YY numeric, example: 26-21")
 	@NotBlank(message = "Student must have an index number!")
 	private String index_number;
+
+	@OneToOne(cascade = CascadeType.ALL)
+	private IPLog iplog;
+
+	public IPLog getIplog() {
+		return iplog;
+	}
+
+	public void setIplog(IPLog iplog) {
+		this.iplog = iplog;
+	}
 
 	public Long getId() {
 		return id;

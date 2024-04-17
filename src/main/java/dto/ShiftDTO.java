@@ -12,7 +12,7 @@ public class ShiftDTO {
 	private String associate;
 	private String professor;
 	private String semester;
-	@JsonFormat(pattern = "hh:mm")
+	@JsonFormat(pattern = "hh:mm a")
 	private LocalTime time_of_lecture;
 
 	public ShiftDTO(String subject, int ects, String associate, String professor, String semester,

@@ -3,6 +3,7 @@ package rest;
 import java.util.List;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import dto.*;
 import jakarta.inject.Inject;
@@ -15,6 +16,7 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import models.*;
+import service.IpClient;
 import service.ModelsService;
 
 @Path("/schedule")
@@ -22,6 +24,10 @@ public class ApplicationRest {
 
 	@Inject
 	private ModelsService m;
+	
+	@Inject
+	@RestClient
+	private IpClient ipclient;
 
 	@POST
 	@Operation(summary = "Create an academic title", description = "Inserts the name of an academic title in the database for later usage.")
@@ -52,6 +58,8 @@ public class ApplicationRest {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/create/student")
 	public Response createStudent(@Valid Student s) {
+		IPLog iplog = ipclient.GetIpAddress();
+		s.setIplog(iplog);
 		return Response.ok(m.createStudent(s)).build();
 	}
 

@@ -9,6 +9,8 @@ import models.*;
 import java.time.LocalTime;
 import java.util.List;
 
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+
 import dto.*;
 
 @Dependent
@@ -16,6 +18,10 @@ public class ModelsService {
 
 	@Inject
 	private EntityManager em;
+	
+	@Inject
+	@RestClient
+	private IpClient i;
 
 	@Transactional
 	public AcademicTitle createAcademicTitle(AcademicTitle at) {

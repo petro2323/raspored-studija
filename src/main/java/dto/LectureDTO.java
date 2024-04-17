@@ -10,7 +10,7 @@ public class LectureDTO {
 	private String title;
 	private String room_number;
 	private String day_name;
-	@JsonFormat(pattern = "hh:mm")
+	@JsonFormat(pattern = "hh:mm a")
 	private LocalTime time_of_lecture;
 	private String professor;
 	private String associate;
