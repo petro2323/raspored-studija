@@ -15,6 +15,7 @@ public class IPLog {
 
 	private String ipString;
 	private String ipType;
+	private String action;
 	private Date createdDate;
 
 	public Long getId() {
@@ -27,6 +28,14 @@ public class IPLog {
 
 	public String getIpString() {
 		return ipString;
+	}
+
+	public String getAction() {
+		return action;
+	}
+
+	public void setAction(String action) {
+		this.action = action;
 	}
 
 	public void setIpString(String ipString) {

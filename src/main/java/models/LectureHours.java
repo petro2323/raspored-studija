@@ -2,11 +2,13 @@ package models;
 
 import java.time.LocalTime;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
@@ -26,9 +28,12 @@ public class LectureHours {
 	@ManyToOne
 	@NotNull(message = "Lecture must have a day!")
 	private DaysOfTheWeek lecture_day;
-	
+
 	@NotNull(message = "The time of the lecture must be inserted.")
 	private LocalTime time_of_lecture;
+
+	@OneToOne(cascade = CascadeType.ALL)
+	private IPLog iplog;
 
 	public Long getId() {
 		return id;
@@ -36,6 +41,14 @@ public class LectureHours {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public IPLog getIplog() {
+		return iplog;
+	}
+
+	public void setIplog(IPLog iplog) {
+		this.iplog = iplog;
 	}
 
 	public Subject getSubject() {

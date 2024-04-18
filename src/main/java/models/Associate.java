@@ -4,25 +4,30 @@ import java.util.Date;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 
 @Entity
 public class Associate {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
+
 	@NotBlank(message = "Associate must have a first name!")
 	private String first_name;
-	
+
 	@NotBlank(message = "Associate must have a last name!")
 	private String last_name;
-	
+
 	@NotNull(message = "Associate must have a birthday!")
 	private Date date_of_birth;
+
+	@OneToOne(cascade = CascadeType.ALL)
+	private IPLog iplog;
 
 	public Long getId() {
 		return id;
@@ -30,6 +35,14 @@ public class Associate {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public IPLog getIplog() {
+		return iplog;
+	}
+
+	public void setIplog(IPLog iplog) {
+		this.iplog = iplog;
 	}
 
 	public String getFirst_name() {

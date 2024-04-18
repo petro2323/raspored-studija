@@ -2,11 +2,13 @@ package models;
 
 import java.util.Date;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -15,13 +17,13 @@ public class Professor {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
+
 	@NotBlank(message = "Professor must have a first name!")
 	private String first_name;
-	
+
 	@NotBlank(message = "Professor must have a last name!")
 	private String last_name;
-	
+
 	@NotNull(message = "Professor must have a birthday!")
 	private Date date_of_birth;
 
@@ -29,8 +31,19 @@ public class Professor {
 	@NotNull(message = "Professor must have an academic title!")
 	private AcademicTitle academic_title;
 
+	@OneToOne(cascade = CascadeType.ALL)
+	private IPLog iplog;
+
 	public Long getId() {
 		return id;
+	}
+
+	public IPLog getIplog() {
+		return iplog;
+	}
+
+	public void setIplog(IPLog iplog) {
+		this.iplog = iplog;
 	}
 
 	public void setId(Long id) {

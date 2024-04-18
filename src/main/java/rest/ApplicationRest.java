@@ -1,5 +1,6 @@
 package rest;
 
+import java.util.Date;
 import java.util.List;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -28,12 +29,21 @@ public class ApplicationRest {
 	@Inject
 	@RestClient
 	private IpClient ipclient;
+	
+	private IPLog getClientsIP(String action) {
+		IPLog iplog = ipclient.GetIpAddress();
+		iplog.setCreatedDate(new Date());
+		iplog.setAction(action);
+		
+		return iplog;
+	}
 
 	@POST
 	@Operation(summary = "Create an academic title", description = "Inserts the name of an academic title in the database for later usage.")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/create/academic-title")
 	public Response createAcademicTitle(@Valid AcademicTitle at) {
+		at.setIplog(getClientsIP("created academic title " + at.getTitle_name()));
 		return Response.ok(m.createAcademicTitle(at)).build();
 	}
 
@@ -42,6 +52,7 @@ public class ApplicationRest {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/create/associate")
 	public Response createAssociate(@Valid Associate a) {
+		a.setIplog(getClientsIP("created associate " + a.getFirst_name() + a.getLast_name()));
 		return Response.ok(m.createAssociate(a)).build();
 	}
 
@@ -50,6 +61,7 @@ public class ApplicationRest {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/create/professor")
 	public Response createProfessor(@Valid Professor p) {
+		p.setIplog(getClientsIP("created professor " + p.getFirst_name() + " " + p.getLast_name()));
 		return Response.ok(m.createProfessor(p)).build();
 	}
 
@@ -58,8 +70,7 @@ public class ApplicationRest {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/create/student")
 	public Response createStudent(@Valid Student s) {
-		IPLog iplog = ipclient.GetIpAddress();
-		s.setIplog(iplog);
+		s.setIplog(getClientsIP("created student " + s.getFirst_name() + " " + s.getLast_name() + " " + s.getIndex_number()));
 		return Response.ok(m.createStudent(s)).build();
 	}
 
@@ -68,6 +79,7 @@ public class ApplicationRest {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/create/year-of-study")
 	public Response createYearOfStudy(@Valid YearOfStudy yos) {
+		yos.setIplog(getClientsIP("created year of study " + yos.getType()));
 		return Response.ok(m.createYearOfStudy(yos)).build();
 	}
 
@@ -76,6 +88,7 @@ public class ApplicationRest {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/create/semester")
 	public Response createSemester(@Valid Semester s) {
+		s.setIplog(getClientsIP("created semester " + s.getRoman_number()));
 		return Response.ok(m.createSemester(s)).build();
 	}
 
@@ -84,6 +97,7 @@ public class ApplicationRest {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/create/subject")
 	public Response createSubject(@Valid Subject s) {
+		s.setIplog(getClientsIP("created subject " + s.getTitle()));
 		return Response.ok(m.createSubject(s)).build();
 	}
 
@@ -92,6 +106,7 @@ public class ApplicationRest {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/create/classroom")
 	public Response createClassRoom(@Valid Classroom c) {
+		c.setIplog(getClientsIP("created classroom " + c.getRoom_number()));
 		return Response.ok(m.createClassRoom(c)).build();
 	}
 
@@ -100,6 +115,7 @@ public class ApplicationRest {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/create/days-of-the-week")
 	public Response createDaysOfTheWeek(@Valid DaysOfTheWeek d) {
+		d.setIplog(getClientsIP("created day " + d.getDay_name()));
 		return Response.ok(m.createDaysOfTheWeek(d)).build();
 	}
 
@@ -108,6 +124,7 @@ public class ApplicationRest {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/create/lecture-hours")
 	public Response createLectureHours(@Valid LectureHours l) {
+		l.setIplog(getClientsIP("created lecture " + l.getSubject().getTitle() + " on " + l.getLecture_day().getDay_name() + " in classroom " + l.getClassroom().getRoom_number()));
 		return Response.ok(m.createLectureHours(l)).build();
 	}
 
@@ -116,6 +133,7 @@ public class ApplicationRest {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/create/student-subject")
 	public Response createStudentSubject(@Valid StudentSubject ss) {
+		ss.setIplog(getClientsIP("created student-subject relationship: " + ss.getStudent().getIndex_number() + " is on " + ss.getSubject().getTitle()));
 		return Response.ok(m.createStudentSubject(ss)).build();
 	}
 
