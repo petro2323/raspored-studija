@@ -11,6 +11,7 @@ import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
@@ -25,16 +26,16 @@ public class ApplicationRest {
 
 	@Inject
 	private ModelsService m;
-	
+
 	@Inject
 	@RestClient
 	private IpClient ipclient;
-	
+
 	private IPLog getClientsIP(String action) {
 		IPLog iplog = ipclient.GetIpAddress();
 		iplog.setCreatedDate(new Date());
 		iplog.setAction(action);
-		
+
 		return iplog;
 	}
 
@@ -70,7 +71,8 @@ public class ApplicationRest {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/create/student")
 	public Response createStudent(@Valid Student s) {
-		s.setIplog(getClientsIP("created student " + s.getFirst_name() + " " + s.getLast_name() + " " + s.getIndex_number()));
+		s.setIplog(getClientsIP(
+				"created student " + s.getFirst_name() + " " + s.getLast_name() + " " + s.getIndex_number()));
 		return Response.ok(m.createStudent(s)).build();
 	}
 
@@ -124,7 +126,8 @@ public class ApplicationRest {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/create/lecture-hours")
 	public Response createLectureHours(@Valid LectureHours l) {
-		l.setIplog(getClientsIP("created lecture " + l.getSubject().getTitle() + " on " + l.getLecture_day().getDay_name() + " in classroom " + l.getClassroom().getRoom_number()));
+		l.setIplog(getClientsIP("created lecture " + l.getSubject().getTitle() + " on "
+				+ l.getLecture_day().getDay_name() + " in classroom " + l.getClassroom().getRoom_number()));
 		return Response.ok(m.createLectureHours(l)).build();
 	}
 
@@ -133,7 +136,8 @@ public class ApplicationRest {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/create/student-subject")
 	public Response createStudentSubject(@Valid StudentSubject ss) {
-		ss.setIplog(getClientsIP("created student-subject relationship: " + ss.getStudent().getIndex_number() + " is on " + ss.getSubject().getTitle()));
+		ss.setIplog(getClientsIP("created student-subject relationship: " + ss.getStudent().getIndex_number()
+				+ " is on " + ss.getSubject().getTitle()));
 		return Response.ok(m.createStudentSubject(ss)).build();
 	}
 
@@ -150,7 +154,7 @@ public class ApplicationRest {
 	public List<SubjectDTO> getAllSubjects() {
 		return m.getAllSubjects();
 	}
-	
+
 	@GET
 	@Operation(summary = "View all study years", description = "It lets the user see all study years the institution contains.")
 	@Path("/view/all-years-of-study")
@@ -189,7 +193,7 @@ public class ApplicationRest {
 	public StudentsWithCount getStudentsBySubject(@QueryParam("subject") String subject) {
 		List<StudentDTO> students = m.getStudentsBySubject(subject);
 		int numberOfStudents = students.size();
-		
+
 		return new StudentsWithCount(students, numberOfStudents);
 	}
 
@@ -202,7 +206,7 @@ public class ApplicationRest {
 	public List<ShiftDTO> getSubjectsByShift(@QueryParam("condition") String condition, @QueryParam("time") int time) {
 		return m.getSubjectsByShift(condition, time);
 	}
-	
+
 	@GET
 	@Operation(summary = "Students by study year", description = "It lets the user see the <u>number</u> and <u>list</u> of students by the required study year."
 			+ "<br><br>The user can search for all study years by using the <u>/view/all-years-of-study</u> function."
@@ -211,7 +215,20 @@ public class ApplicationRest {
 	public StudentsWithCount getStudentsByYearOfStudy(@QueryParam("year_of_study") String year_of_study) {
 		List<StudentDTO> students = m.getStudentsByYearOfStudy(year_of_study);
 		int numberOfStudents = students.size();
-		
+
 		return new StudentsWithCount(students, numberOfStudents);
+	}
+
+	@PATCH
+	@Operation(summary = "Update subject data", description = "It lets the user update the data of a subject." +
+	"<br>The function <b>requires</b> the name of the subject where changes are being made; otherwise it will return <i>false</i> which indicates that the request has been interrupted." +
+			"<br>The user can choose the variables that need to be changed which means that other inputs (<b>EXCEPT FOR old_subject_title</b>) can be left <u>blank</u>; in other words the function creates a query based on the user's conditions." +
+	"<br><br><b>Warning</b>: The function supports case-insensitive matching, but it requires for the old subject title to be in the correct order; otherwise, it may fail to send the request.")
+	@Path("/patch/subject")
+	public boolean updateSubject(@QueryParam("ects_number") int ects, @QueryParam("associate") String associate,
+			@QueryParam("professor") String professor, @QueryParam("semester") String semester,
+			@QueryParam("new_subject_title") String newTitle, @QueryParam("old_subject_title") String oldTitle) {
+		
+		return m.updateSubject(ects, associate, professor, semester, newTitle, oldTitle);
 	}
 }

@@ -7,6 +7,7 @@ import jakarta.transaction.Transactional;
 import models.*;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import dto.*;
@@ -88,32 +89,33 @@ public class ModelsService {
 			condition = "AND cl.room_number = " + roomQuery;
 		}
 
-		return em.createQuery("SELECT new LectureDTO(s.title, cl.room_number, d.day_name, l.time_of_lecture, CONCAT(pro.first_name, ' ', pro.last_name) AS professor, CONCAT(asi.first_name, ' ', asi.last_name) AS associate) "
-				+ "FROM LectureHours l " + "INNER JOIN Subject s ON s.id = l.subject.id "
-				+ "INNER JOIN Classroom cl ON cl.id = l.classroom.id "
-				+ "INNER JOIN DaysOfTheWeek d ON d.id = l.lecture_day.id "
-				+ "INNER JOIN Professor pro ON pro.id = s.professor.id "
-				+ "LEFT JOIN Associate asi ON asi.id = s.associate.id "
-				+ "INNER JOIN Semester se ON se.id = s.semester.id WHERE 1=1 " + condition, LectureDTO.class).getResultList();
+		return em.createQuery(
+				"SELECT new LectureDTO(s.title, cl.room_number, d.day_name, l.time_of_lecture, CONCAT(pro.first_name, ' ', pro.last_name) AS professor, CONCAT(asi.first_name, ' ', asi.last_name) AS associate) "
+						+ "FROM LectureHours l " + "INNER JOIN Subject s ON s.id = l.subject.id "
+						+ "INNER JOIN Classroom cl ON cl.id = l.classroom.id "
+						+ "INNER JOIN DaysOfTheWeek d ON d.id = l.lecture_day.id "
+						+ "INNER JOIN Professor pro ON pro.id = s.professor.id "
+						+ "LEFT JOIN Associate asi ON asi.id = s.associate.id "
+						+ "INNER JOIN Semester se ON se.id = s.semester.id WHERE 1=1 " + condition,
+				LectureDTO.class).getResultList();
 	}
 
 	@Transactional
 	public List<ProfessorDTO> getProfessorsByAcademicTitle(String title_name) {
-		
+
 		String titleNameQuery = (title_name == null) ? "" : "'" + title_name + "'";
-		
+
 		String condition = "";
-		
-		if(!titleNameQuery.isEmpty()) {
+
+		if (!titleNameQuery.isEmpty()) {
 			condition = "AND ac.title_name = " + titleNameQuery;
 		}
-		
+
 		return em
-				.createQuery(
-						"SELECT new ProfessorDTO(pro.first_name, pro.last_name,\r\n" + "pro.date_of_birth)\r\n"
-								+ "FROM Professor pro\r\n" + "INNER JOIN AcademicTitle ac ON\r\n"
-								+ "ac.id = pro.academic_title.id\r\n" + "WHERE 1=1 " + condition,
-						ProfessorDTO.class).getResultList();
+				.createQuery("SELECT new ProfessorDTO(pro.first_name, pro.last_name,\r\n" + "pro.date_of_birth)\r\n"
+						+ "FROM Professor pro\r\n" + "INNER JOIN AcademicTitle ac ON\r\n"
+						+ "ac.id = pro.academic_title.id\r\n" + "WHERE 1=1 " + condition, ProfessorDTO.class)
+				.getResultList();
 	}
 
 	@Transactional
@@ -136,7 +138,7 @@ public class ModelsService {
 		return em.createQuery("SELECT new SubjectDTO(s.title, s.ects) FROM Subject s", SubjectDTO.class)
 				.getResultList();
 	}
-	
+
 	@Transactional
 	public List<YearOfStudyDTO> getAllStudyYears() {
 		return em.createQuery("SELECT new YearOfStudyDTO(type) FROM YearOfStudy", YearOfStudyDTO.class).getResultList();
@@ -162,12 +164,66 @@ public class ModelsService {
 				+ "INNER JOIN LectureHours l ON\r\n" + "s.id = l.subject.id\r\n" + "WHERE l.time_of_lecture "
 				+ realCondition + ":time", ShiftDTO.class).setParameter("time", realTime).getResultList();
 	}
-	
+
 	@Transactional
 	public List<StudentDTO> getStudentsByYearOfStudy(String year_of_study) {
-		return em.createQuery("SELECT new StudentDTO(s.first_name, s.last_name, s.index_number)\r\n"
-				+ "FROM Student s\r\n"
-				+ "INNER JOIN YearOfStudy y ON y.id = s.year_of_study.id\r\n"
-				+ "WHERE y.type = :year_of_study", StudentDTO.class).setParameter("year_of_study", year_of_study).getResultList();
+		return em.createQuery(
+				"SELECT new StudentDTO(s.first_name, s.last_name, s.index_number)\r\n" + "FROM Student s\r\n"
+						+ "INNER JOIN YearOfStudy y ON y.id = s.year_of_study.id\r\n" + "WHERE y.type = :year_of_study",
+				StudentDTO.class).setParameter("year_of_study", year_of_study).getResultList();
 	}
+
+	@Transactional
+	public boolean updateSubject(int ects, String associate, String professor, String semester, String newTitle,
+			String oldTitle) {
+		List<String> statements = new ArrayList<String>();
+
+		if (ects > 0) {
+			statements.add("ects = " + ects);
+		}
+
+		if (associate != null) {
+			String[] splitAssociate = associate.split(" ");
+			statements.add("associate.id = (SELECT id FROM Associate WHERE first_name = '"
+					+ splitAssociate[0].toUpperCase().charAt(0) + splitAssociate[0].substring(1).toLowerCase()
+					+ "' AND last_name = '" + splitAssociate[1].toUpperCase().charAt(0)
+					+ splitAssociate[1].substring(1).toLowerCase() + "')");
+		}
+
+		if (professor != null) {
+			String[] splitProfessor = professor.split(" ");
+			statements.add("professor.id = (SELECT id FROM Professor WHERE first_name = '"
+					+ splitProfessor[0].toUpperCase().charAt(0) + splitProfessor[0].substring(1).toLowerCase()
+					+ "' AND last_name = '" + splitProfessor[1].toUpperCase().charAt(0)
+					+ splitProfessor[1].substring(1).toLowerCase() + "')");
+		}
+
+		if (semester != null) {
+			statements.add("semester.id = (SELECT id FROM Semester WHERE roman_number = '" + semester.toUpperCase() + "')");
+		}
+
+		if (newTitle != null) {
+			statements.add("title = '" + newTitle + "'");
+		}
+
+		String query = "UPDATE Subject SET ";
+
+		for (int i = 0; i < statements.size(); i++) {
+			query += statements.get(i);
+			if (i < statements.size() - 1) {
+				query += ", ";
+			}
+		}
+
+		if (oldTitle == null) {
+			return false;
+		} else {
+			query += " WHERE id = (SELECT id FROM Subject WHERE title = '" + oldTitle + "')";
+		}
+
+		int querySuccess = em.createQuery(query).executeUpdate();
+
+		return querySuccess > 0;
+	}
+
 }
