@@ -18,6 +18,10 @@ public class ModelsService {
 	@Inject
 	private EntityManager em;
 
+	private boolean isRoman(String input) {
+		return input.matches("^[IVXLCDM]+$");
+	}
+
 	@Transactional
 	public AcademicTitle createAcademicTitle(AcademicTitle at) {
 		return em.merge(at);
@@ -199,11 +203,33 @@ public class ModelsService {
 		}
 
 		if (semester != null) {
-			statements.add("semester.id = (SELECT id FROM Semester WHERE roman_number = '" + semester.toUpperCase() + "')");
+			statements.add(
+					"semester.id = (SELECT id FROM Semester WHERE roman_number = '" + semester.toUpperCase() + "')");
 		}
 
 		if (newTitle != null) {
-			statements.add("title = '" + newTitle + "'");
+			String[] checkTitle = newTitle.split(" ");
+			int num = checkTitle.length;
+			String dbTitle = "'";
+
+			if (!isRoman(checkTitle[0].toUpperCase())) {
+				dbTitle += checkTitle[0].toUpperCase().charAt(0) + checkTitle[0].substring(1).toLowerCase();
+			} else {
+				return false;
+			}
+
+			if (num > 1) {
+				for (int i = 1; i < num; i++) {
+					if (isRoman(checkTitle[i].toUpperCase())) {
+						dbTitle += " " + checkTitle[i].toUpperCase();
+					} else {
+						dbTitle += " " + checkTitle[i].toLowerCase();
+					}
+				}
+			}
+
+			dbTitle += "'";
+			statements.add("title = " + dbTitle);
 		}
 
 		String query = "UPDATE Subject SET ";
