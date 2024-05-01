@@ -252,4 +252,50 @@ public class ModelsService {
 		return querySuccess > 0;
 	}
 
+	@Transactional
+	public boolean updateLecture(LocalTime time, String classroom, String day, String subject) {
+		List<String> statements = new ArrayList<String>();
+
+		if (time != null) {
+			statements.add("time_of_lecture = :time");
+		}
+
+		if (classroom != null) {
+			statements.add(
+					"classroom.id = (SELECT id FROM Classroom WHERE room_number = '" + classroom.toUpperCase() + "')");
+		}
+
+		if (day != null) {
+			char[] checkDay = day.toCharArray();
+			checkDay[0] = Character.toUpperCase(checkDay[0]);
+
+			for (int i = 1; i < checkDay.length; i++) {
+				checkDay[i] = Character.toLowerCase(checkDay[i]);
+			}
+
+			statements.add(
+					"lecture_day.id = (SELECT id FROM DaysOfTheWeek WHERE day_name = '" + new String(checkDay) + "')");
+		}
+
+		String query = "UPDATE LectureHours SET ";
+
+		for (int i = 0; i < statements.size(); i++) {
+			query += statements.get(i);
+			if (i < statements.size() - 1) {
+				query += ", ";
+			}
+		}
+
+		if (subject == null) {
+			return false;
+		} else {
+			query += " WHERE subject.id = (SELECT id FROM Subject WHERE title = '" + subject + "')";
+		}
+
+		if (time != null) {
+			return em.createQuery(query).setParameter("time", time).executeUpdate() > 0;
+		} else {
+			return em.createQuery(query).executeUpdate() > 0;
+		}
+	}
 }
