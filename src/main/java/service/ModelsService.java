@@ -22,6 +22,28 @@ public class ModelsService {
 		return input.matches("^[IVXLCDM]+$");
 	}
 
+	private String subjectInputToDBFormat(String[] array) {
+		String title = "";
+
+		if (isRoman(array[0].toUpperCase())) {
+			return null;
+		} else {
+			title += array[0].toUpperCase().charAt(0) + array[0].substring(1).toLowerCase();
+		}
+
+		if (array.length > 1) {
+			for (int i = 1; i < array.length; i++) {
+				if (isRoman(array[i].toUpperCase())) {
+					title += " " + array[i].toUpperCase();
+				} else {
+					title += " " + array[i].toLowerCase();
+				}
+			}
+		}
+
+		return title;
+	}
+
 	@Transactional
 	public AcademicTitle createAcademicTitle(AcademicTitle at) {
 		return em.merge(at);
@@ -208,28 +230,12 @@ public class ModelsService {
 		}
 
 		if (newTitle != null) {
-			String[] checkTitle = newTitle.split(" ");
-			int num = checkTitle.length;
-			String dbTitle = "'";
-
-			if (!isRoman(checkTitle[0].toUpperCase())) {
-				dbTitle += checkTitle[0].toUpperCase().charAt(0) + checkTitle[0].substring(1).toLowerCase();
-			} else {
+			String dbTitle = subjectInputToDBFormat(newTitle.split(" "));
+			if (dbTitle == null) {
 				return false;
+			} else {
+				statements.add("title = '" + dbTitle + "'");
 			}
-
-			if (num > 1) {
-				for (int i = 1; i < num; i++) {
-					if (isRoman(checkTitle[i].toUpperCase())) {
-						dbTitle += " " + checkTitle[i].toUpperCase();
-					} else {
-						dbTitle += " " + checkTitle[i].toLowerCase();
-					}
-				}
-			}
-
-			dbTitle += "'";
-			statements.add("title = " + dbTitle);
 		}
 
 		String query = "UPDATE Subject SET ";
@@ -244,12 +250,15 @@ public class ModelsService {
 		if (oldTitle == null) {
 			return false;
 		} else {
-			query += " WHERE id = (SELECT id FROM Subject WHERE title = '" + oldTitle + "')";
+			String request = subjectInputToDBFormat(oldTitle.split(" "));
+			if (request == null) {
+				return false;
+			} else {
+				query += " WHERE id = (SELECT id FROM Subject WHERE title = '" + request + "')";
+			}
 		}
 
-		int querySuccess = em.createQuery(query).executeUpdate();
-
-		return querySuccess > 0;
+		return em.createQuery(query).executeUpdate() > 0;
 	}
 
 	@Transactional
@@ -289,7 +298,12 @@ public class ModelsService {
 		if (subject == null) {
 			return false;
 		} else {
-			query += " WHERE subject.id = (SELECT id FROM Subject WHERE title = '" + subject + "')";
+			String request = subjectInputToDBFormat(subject.split(" "));
+			if (request == null) {
+				return false;
+			} else {
+				query += " WHERE subject.id = (SELECT id FROM Subject WHERE title = '" + request + "')";
+			}
 		}
 
 		if (time != null) {
