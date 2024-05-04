@@ -22,7 +22,8 @@ public class ModelsService {
 		return input.matches("^[IVXLCDM]+$");
 	}
 
-	private String subjectInputToDBFormat(String[] array) {
+	private String subjectInputToDBFormat(String subject) {
+		String[] array = subject.split(" ");
 		String title = "";
 
 		if (isRoman(array[0].toUpperCase())) {
@@ -200,7 +201,26 @@ public class ModelsService {
 	}
 
 	@Transactional
-	public boolean updateSubject(int ects, String associate, String professor, String semester, String newTitle,
+	public List<EmployeeDTO> showEmployees(String first_name, String last_name, String employeeType) {
+		if (employeeType == "Associate") {
+			return em.createQuery(
+					"SELECT new EmployeeDTO(id, first_name, last_name, date_of_birth) FROM Associate WHERE first_name = :first_name AND last_name = :last_name",
+					EmployeeDTO.class).setParameter("first_name", first_name).setParameter("last_name", last_name)
+					.getResultList();
+		} else if (employeeType == "Professor") {
+			return em.createQuery(
+					"SELECT new EmployeeDTO(pro.id, pro.first_name, pro.last_name, pro.date_of_birth, ac.title_name AS academic_title) FROM Professor pro\r\n"
+							+ "INNER JOIN AcademicTitle ac ON ac.id = pro.academic_title.id\r\n"
+							+ "WHERE first_name = :first_name AND last_name = :last_name",
+					EmployeeDTO.class).setParameter("first_name", first_name).setParameter("last_name", last_name)
+					.getResultList();
+		} else {
+			return new ArrayList<EmployeeDTO>();
+		}
+	}
+
+	@Transactional
+	public String updateSubject(int ects, String associate, String professor, String semester, String newTitle,
 			String oldTitle) {
 		List<String> statements = new ArrayList<String>();
 
@@ -209,19 +229,59 @@ public class ModelsService {
 		}
 
 		if (associate != null) {
-			String[] splitAssociate = associate.split(" ");
-			statements.add("associate.id = (SELECT id FROM Associate WHERE first_name = '"
-					+ splitAssociate[0].toUpperCase().charAt(0) + splitAssociate[0].substring(1).toLowerCase()
-					+ "' AND last_name = '" + splitAssociate[1].toUpperCase().charAt(0)
-					+ splitAssociate[1].substring(1).toLowerCase() + "')");
+			if (associate.matches("\\d+")) {
+				int id = Integer.parseInt(associate);
+				statements.add("associate.id = " + id);
+			} else {
+				String[] splitAssociate = associate.split(" ");
+				String first_name = splitAssociate[0].toUpperCase().charAt(0)
+						+ splitAssociate[0].substring(1).toLowerCase();
+				String last_name = splitAssociate[1].toUpperCase().charAt(0)
+						+ splitAssociate[1].substring(1).toLowerCase();
+				List<EmployeeDTO> associates = showEmployees(first_name, last_name, "Associate");
+
+				if (associates.size() > 1) {
+					String message = "Failed to send request: Couldn't resolve ASSOCIATE because there is > 1."
+							+ "\nPlease enter the id number of the required associate in the associate input: ";
+					for (int i = 0; i < associates.size(); i++) {
+						message += "\n\n" + associates.get(i).toString();
+					}
+					return message;
+				} else if (associates.size() < 1) {
+					return "Failed to send request: There is no ASSOCIATE by the name: " + first_name + " " + last_name;
+				} else {
+					statements.add("associate.id = (SELECT id FROM Associate WHERE first_name = '" + first_name
+							+ "' AND last_name = '" + last_name + "')");
+				}
+			}
 		}
 
 		if (professor != null) {
-			String[] splitProfessor = professor.split(" ");
-			statements.add("professor.id = (SELECT id FROM Professor WHERE first_name = '"
-					+ splitProfessor[0].toUpperCase().charAt(0) + splitProfessor[0].substring(1).toLowerCase()
-					+ "' AND last_name = '" + splitProfessor[1].toUpperCase().charAt(0)
-					+ splitProfessor[1].substring(1).toLowerCase() + "')");
+			if (professor.matches("\\d+")) {
+				int id = Integer.parseInt(professor);
+				statements.add("professor.id = " + id);
+			} else {
+				String[] splitProfessor = professor.split(" ");
+				String first_name = splitProfessor[0].toUpperCase().charAt(0)
+						+ splitProfessor[0].substring(1).toLowerCase();
+				String last_name = splitProfessor[1].toUpperCase().charAt(0)
+						+ splitProfessor[1].substring(1).toLowerCase();
+				List<EmployeeDTO> professors = showEmployees(first_name, last_name, "Professor");
+
+				if (professors.size() > 1) {
+					String message = "Failed to send request: Couldn't resolve PROFESSOR because there is > 1."
+							+ "\nPlease enter the id number of the required professor in the professor input: ";
+					for (int i = 0; i < professors.size(); i++) {
+						message += "\n\n" + professors.get(i).toString();
+					}
+					return message;
+				} else if (professors.size() < 1) {
+					return "Failed to send request: There is no PROFESSOR by the name: " + first_name + " " + last_name;
+				} else {
+					statements.add("professor.id = (SELECT id FROM Professor WHERE first_name = '" + first_name
+							+ "' AND last_name = '" + last_name + "')");
+				}
+			}
 		}
 
 		if (semester != null) {
@@ -230,9 +290,9 @@ public class ModelsService {
 		}
 
 		if (newTitle != null) {
-			String dbTitle = subjectInputToDBFormat(newTitle.split(" "));
+			String dbTitle = subjectInputToDBFormat(newTitle);
 			if (dbTitle == null) {
-				return false;
+				return "Failed to send the request: Invalid roman number position.";
 			} else {
 				statements.add("title = '" + dbTitle + "'");
 			}
@@ -248,17 +308,18 @@ public class ModelsService {
 		}
 
 		if (oldTitle == null) {
-			return false;
+			return "Failed to send the request: Old title is blank!";
 		} else {
-			String request = subjectInputToDBFormat(oldTitle.split(" "));
+			String request = subjectInputToDBFormat(oldTitle);
 			if (request == null) {
-				return false;
+				return "Failed to send request: Invalid roman number position.";
 			} else {
 				query += " WHERE id = (SELECT id FROM Subject WHERE title = '" + request + "')";
 			}
 		}
 
-		return em.createQuery(query).executeUpdate() > 0;
+		return (em.createQuery(query).executeUpdate() > 0) ? "Request has been sent. \n\nUpdate status: Accomplished!"
+				: "An error has occured, failed to send the request.";
 	}
 
 	@Transactional
@@ -298,7 +359,7 @@ public class ModelsService {
 		if (subject == null) {
 			return false;
 		} else {
-			String request = subjectInputToDBFormat(subject.split(" "));
+			String request = subjectInputToDBFormat(subject);
 			if (request == null) {
 				return false;
 			} else {

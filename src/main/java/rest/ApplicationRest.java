@@ -226,7 +226,7 @@ public class ApplicationRest {
 			+ "<br>The user can choose the variables that need to be changed which means that other inputs (<b>EXCEPT FOR old_subject_title</b>) can be left <u>blank</u>; in other words the function creates a query based on the user's conditions."
 			+ "<br><br><b>Warning</b>: The function supports case-insensitive matching, but it requires for the old subject title to be in the correct order; otherwise, it may fail to send the request.")
 	@Path("/patch/subject")
-	public boolean updateSubject(@QueryParam("ects_number") int ects, @QueryParam("associate") String associate,
+	public String updateSubject(@QueryParam("ects_number") int ects, @QueryParam("associate") String associate,
 			@QueryParam("professor") String professor, @QueryParam("semester") String semester,
 			@QueryParam("new_subject_title") String newTitle, @QueryParam("old_subject_title") String oldTitle) {
 
