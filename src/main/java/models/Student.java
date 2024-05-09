@@ -1,6 +1,8 @@
 package models;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -8,6 +10,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotBlank;
@@ -41,6 +46,11 @@ public class Student {
 	@OneToOne(cascade = CascadeType.ALL)
 	private IPLog iplog;
 
+	@ManyToMany
+	@JoinTable(name = "student_subject", joinColumns = { @JoinColumn(name = "student_id") }, inverseJoinColumns = {
+			@JoinColumn(name = "subject_id") })
+	Set<Subject> subjects = new HashSet<Subject>();
+
 	public IPLog getIplog() {
 		return iplog;
 	}
@@ -51,6 +61,14 @@ public class Student {
 
 	public Long getId() {
 		return id;
+	}
+
+	public Set<Subject> getSubjects() {
+		return subjects;
+	}
+
+	public void setSubjects(Set<Subject> subjects) {
+		this.subjects = subjects;
 	}
 
 	public void setId(Long id) {

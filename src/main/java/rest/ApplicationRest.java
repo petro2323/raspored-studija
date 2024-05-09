@@ -11,6 +11,7 @@ import dto.*;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
@@ -133,13 +134,19 @@ public class ApplicationRest {
 	}
 
 	@POST
-	@Operation(summary = "Create a student-subject relationship", description = "Inserts the student and subject in the database to create the MANY-TO-MANY relationship.")
-	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("/create/student-subject")
-	public Response createStudentSubject(@Valid StudentSubject ss) {
-		ss.setIplog(getClientsIP("created student-subject relationship: " + ss.getStudent().getIndex_number()
-				+ " is on " + ss.getSubject().getTitle()));
-		return Response.ok(m.createStudentSubject(ss)).build();
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response createStudentSubject(@QueryParam("student_id") Long student_id, @QueryParam("subject_id") Long subject_id) {
+		m.addStudentToSubject(student_id, subject_id);
+        return Response.status(Response.Status.OK).entity("Student added to subject successfully").build();
+	}
+	
+	@DELETE
+	@Path("/create/student-subject")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response deleteStudentSubject(@QueryParam("student_id") Long student_id, @QueryParam("subject_id") Long subject_id) {
+		m.removeStudentFromSubject(student_id, subject_id);
+        return Response.status(Response.Status.OK).entity("Student removed from subject successfully").build();
 	}
 
 	@GET

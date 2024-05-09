@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import models.*;
+import repository.*;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -17,6 +18,12 @@ public class ModelsService {
 
 	@Inject
 	private EntityManager em;
+	
+	@Inject
+    private StudentRepository studentRepository;
+
+    @Inject
+    private SubjectRepository subjectRepository;
 
 	private boolean isRoman(String input) {
 		return input.matches("^[IVXLCDM]+$");
@@ -96,8 +103,25 @@ public class ModelsService {
 	}
 
 	@Transactional
-	public StudentSubject createStudentSubject(StudentSubject ss) {
-		return em.merge(ss);
+	public void addStudentToSubject(Long student_id, Long subject_id) {
+		Student stu = studentRepository.findById(student_id);
+		Subject sub = subjectRepository.findById(subject_id);
+		
+		if(stu != null && sub != null) {
+			stu.getSubjects().add(sub);
+			studentRepository.persist(stu);
+		}
+	}
+	
+	@Transactional
+	public void removeStudentFromSubject(Long student_id, Long subject_id) {
+		Student stu = studentRepository.findById(student_id);
+		Subject sub = subjectRepository.findById(subject_id);
+		
+		if(stu != null && sub != null) {
+			stu.getSubjects().remove(sub);
+			studentRepository.persist(stu);
+		}
 	}
 
 	@Transactional
