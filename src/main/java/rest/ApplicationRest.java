@@ -136,17 +136,19 @@ public class ApplicationRest {
 	@POST
 	@Path("/create/student-subject")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response createStudentSubject(@QueryParam("student_id") Long student_id, @QueryParam("subject_id") Long subject_id) {
+	public Response createStudentSubject(@QueryParam("student_id") Long student_id,
+			@QueryParam("subject_id") Long subject_id) {
 		m.addStudentToSubject(student_id, subject_id);
-        return Response.status(Response.Status.OK).entity("Student added to subject successfully").build();
+		return Response.status(Response.Status.OK).entity("Student added to subject successfully").build();
 	}
-	
+
 	@DELETE
 	@Path("/create/student-subject")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response deleteStudentSubject(@QueryParam("student_id") Long student_id, @QueryParam("subject_id") Long subject_id) {
+	public Response deleteStudentSubject(@QueryParam("student_id") Long student_id,
+			@QueryParam("subject_id") Long subject_id) {
 		m.removeStudentFromSubject(student_id, subject_id);
-        return Response.status(Response.Status.OK).entity("Student removed from subject successfully").build();
+		return Response.status(Response.Status.OK).entity("Student removed from subject successfully").build();
 	}
 
 	@GET
@@ -250,5 +252,13 @@ public class ApplicationRest {
 			@QueryParam("day") String day, @QueryParam("subject") String subject) {
 
 		return m.updateLecture(time, classroom, day, subject);
+	}
+
+	@PATCH
+	@Path("/patch/student")
+	public boolean updateStudent(@QueryParam("first_name") String first_name, @QueryParam("last_name") String last_name,
+			@QueryParam("year_of_study") String year_of_study, @QueryParam("index_number") String index_number) {
+		
+		return m.updateStudent(first_name, last_name, year_of_study, index_number);
 	}
 }

@@ -345,6 +345,43 @@ public class ModelsService {
 		return (em.createQuery(query).executeUpdate() > 0) ? "Request has been sent. \n\nUpdate status: Accomplished!"
 				: "An error has occured, failed to send the request.";
 	}
+	
+	@Transactional
+	public boolean updateStudent(String first_name, String last_name, String year_of_study, String indexNumber) {
+		List<String> statements = new ArrayList<String>();
+		
+		if (first_name != null) {
+			first_name = first_name.toUpperCase().charAt(0) + first_name.substring(1).toLowerCase();
+			statements.add("first_name = '" + first_name + "'");
+		}
+		
+		if (last_name != null) {
+			last_name = last_name.toUpperCase().charAt(0) + last_name.substring(1).toLowerCase();
+			statements.add("last_name = '" + last_name + "'");
+		}
+		
+		if (year_of_study != null) {
+			year_of_study = year_of_study.toLowerCase();
+			statements.add("year_of_study.id = (SELECT id FROM YearOfStudy WHERE type = '" + year_of_study + "')");
+		}
+		
+		String query = "UPDATE Student SET ";
+
+		for (int i = 0; i < statements.size(); i++) {
+			query += statements.get(i);
+			if (i < statements.size() - 1) {
+				query += ", ";
+			}
+		}
+		
+		if (indexNumber == null) {
+			return false;
+		} else {
+			query += " WHERE index_number = '" + indexNumber + "'";
+		}
+		
+		return em.createQuery(query).executeUpdate() > 0;
+	}
 
 	@Transactional
 	public boolean updateLecture(LocalTime time, String classroom, String day, String subject) {
