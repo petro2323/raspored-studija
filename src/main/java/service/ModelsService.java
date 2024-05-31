@@ -103,9 +103,9 @@ public class ModelsService {
 	}
 
 	@Transactional
-	public void addStudentToSubject(Long student_id, Long subject_id) {
-		Student stu = studentRepository.findById(student_id);
-		Subject sub = subjectRepository.findById(subject_id);
+	public void addStudentToSubject(String index_number, String title) {
+		Student stu = studentRepository.findByIndexNumber(index_number.trim());
+		Subject sub = subjectRepository.findBySubjectTitle(title.trim());
 		
 		if(stu != null && sub != null) {
 			stu.getSubjects().add(sub);
@@ -114,9 +114,9 @@ public class ModelsService {
 	}
 	
 	@Transactional
-	public void removeStudentFromSubject(Long student_id, Long subject_id) {
-		Student stu = studentRepository.findById(student_id);
-		Subject sub = subjectRepository.findById(subject_id);
+	public void removeStudentFromSubject(String index_number, String title) {
+		Student stu = studentRepository.findByIndexNumber(index_number.trim());
+		Subject sub = subjectRepository.findBySubjectTitle(title.trim());
 		
 		if(stu != null && sub != null) {
 			stu.getSubjects().remove(sub);
@@ -169,14 +169,14 @@ public class ModelsService {
 				.getResultList();
 	}
 
-	@Transactional
-	public List<StudentDTO> getStudentsBySubject(String subject) {
-		return em.createQuery(
-				"SELECT new StudentDTO(s.first_name, s.last_name,\r\n" + "s.index_number) FROM Student s\r\n"
-						+ "INNER JOIN StudentSubject ss ON\r\n" + "s.id = ss.student.id\r\n"
-						+ "INNER JOIN Subject su ON\r\n" + "su.id = ss.subject.id\r\n" + "WHERE su.title = :subject",
-				StudentDTO.class).setParameter("subject", subject).getResultList();
-	}
+//	@Transactional
+//	public List<StudentDTO> getStudentsBySubject(String subject) {
+//		return em.createQuery(
+//				"SELECT new StudentDTO(s.first_name, s.last_name,\r\n" + "s.index_number) FROM Student s\r\n"
+//						+ "INNER JOIN StudentSubject ss ON\r\n" + "s.id = ss.student.id\r\n"
+//						+ "INNER JOIN Subject su ON\r\n" + "su.id = ss.subject.id\r\n" + "WHERE su.title = :subject",
+//				StudentDTO.class).setParameter("subject", subject).getResultList();
+//	} *izmjeniti logiku, ovo je stara metoda sa modelom StudentSubject*
 
 	@Transactional
 	public List<AcademicTitleDTO> getAllAcademicTitles() {

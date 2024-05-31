@@ -7,7 +7,7 @@ import models.Subject;
 @ApplicationScoped
 public class SubjectRepository implements PanacheRepository<Subject> {
 
-	public Subject findById(Long id) {
-		return find("id", id).firstResult();
+	public Subject findBySubjectTitle(String title) {
+		return find("title", title).firstResult();
 	}
 }
