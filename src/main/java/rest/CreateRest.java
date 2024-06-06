@@ -10,15 +10,12 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import models.*;
-import multipart.MultipartBody;
 import service.IpClient;
 import service.ModelsService;
-import service.MultipartService;
 
 @Path("/create")
 public class CreateRest {
@@ -29,10 +26,6 @@ public class CreateRest {
 	@Inject
 	@RestClient
 	private IpClient ipclient;
-	
-	@Inject
-	@RestClient
-    private MultipartService service;
 
 	private IPLog getClientsIP(String action) {
 		IPLog iplog = ipclient.GetIpAddress();
@@ -41,14 +34,6 @@ public class CreateRest {
 
 		return iplog;
 	}
-	
-	@POST
-    @Path("/upload-file")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Produces(MediaType.TEXT_PLAIN)
-    public String sendFile(MultipartBody body) throws Exception {
-        return service.sendMultipartData(body);
-    }
 
 	@POST
 	@Operation(summary = "Create an academic title", description = "Inserts the name of an academic title in the database for later usage.")
