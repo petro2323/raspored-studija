@@ -10,6 +10,8 @@ import repository.*;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import dto.*;
 
@@ -18,12 +20,12 @@ public class ModelsService {
 
 	@Inject
 	private EntityManager em;
-	
-	@Inject
-    private StudentRepository studentRepository;
 
-    @Inject
-    private SubjectRepository subjectRepository;
+	@Inject
+	private StudentRepository studentRepository;
+
+	@Inject
+	private SubjectRepository subjectRepository;
 
 	private boolean isRoman(String input) {
 		return input.matches("^[IVXLCDM]+$");
@@ -106,19 +108,19 @@ public class ModelsService {
 	public void addStudentToSubject(String index_number, String title) {
 		Student stu = studentRepository.findByIndexNumber(index_number.trim());
 		Subject sub = subjectRepository.findBySubjectTitle(title.trim());
-		
-		if(stu != null && sub != null) {
+
+		if (stu != null && sub != null) {
 			stu.getSubjects().add(sub);
 			studentRepository.persist(stu);
 		}
 	}
-	
+
 	@Transactional
 	public void removeStudentFromSubject(String index_number, String title) {
 		Student stu = studentRepository.findByIndexNumber(index_number.trim());
 		Subject sub = subjectRepository.findBySubjectTitle(title.trim());
-		
-		if(stu != null && sub != null) {
+
+		if (stu != null && sub != null) {
 			stu.getSubjects().remove(sub);
 			studentRepository.persist(stu);
 		}
@@ -169,14 +171,16 @@ public class ModelsService {
 				.getResultList();
 	}
 
-//	@Transactional
-//	public List<StudentDTO> getStudentsBySubject(String subject) {
-//		return em.createQuery(
-//				"SELECT new StudentDTO(s.first_name, s.last_name,\r\n" + "s.index_number) FROM Student s\r\n"
-//						+ "INNER JOIN StudentSubject ss ON\r\n" + "s.id = ss.student.id\r\n"
-//						+ "INNER JOIN Subject su ON\r\n" + "su.id = ss.subject.id\r\n" + "WHERE su.title = :subject",
-//				StudentDTO.class).setParameter("subject", subject).getResultList();
-//	} *izmjeniti logiku, ovo je stara metoda sa modelom StudentSubject*
+	@Transactional
+	public StudentsWithCount getStudentsBySubject(String subject) {
+		Subject sub = subjectRepository.findBySubjectTitle(subject.trim());
+
+		Set<StudentDTO> students = sub.getStudents().stream()
+                .map(student -> new StudentDTO(student.getFirst_name(), student.getLast_name(), student.getIndex_number()))
+                .collect(Collectors.toSet());
+		
+		return new StudentsWithCount(students, students.size(), null);
+	}
 
 	@Transactional
 	public List<AcademicTitleDTO> getAllAcademicTitles() {
@@ -217,11 +221,13 @@ public class ModelsService {
 	}
 
 	@Transactional
-	public List<StudentDTO> getStudentsByYearOfStudy(String year_of_study) {
-		return em.createQuery(
+	public StudentsWithCount getStudentsByYearOfStudy(String year_of_study) {
+		List<StudentDTO> students_by_year = em.createQuery(
 				"SELECT new StudentDTO(s.first_name, s.last_name, s.index_number)\r\n" + "FROM Student s\r\n"
 						+ "INNER JOIN YearOfStudy y ON y.id = s.year_of_study.id\r\n" + "WHERE y.type = :year_of_study",
 				StudentDTO.class).setParameter("year_of_study", year_of_study).getResultList();
+		
+		return new StudentsWithCount(null, students_by_year.size(), students_by_year);
 	}
 
 	@Transactional
@@ -345,26 +351,26 @@ public class ModelsService {
 		return (em.createQuery(query).executeUpdate() > 0) ? "Request has been sent. \n\nUpdate status: Accomplished!"
 				: "An error has occured, failed to send the request.";
 	}
-	
+
 	@Transactional
 	public boolean updateStudent(String first_name, String last_name, String year_of_study, String indexNumber) {
 		List<String> statements = new ArrayList<String>();
-		
+
 		if (first_name != null) {
 			first_name = first_name.toUpperCase().charAt(0) + first_name.substring(1).toLowerCase();
 			statements.add("first_name = '" + first_name + "'");
 		}
-		
+
 		if (last_name != null) {
 			last_name = last_name.toUpperCase().charAt(0) + last_name.substring(1).toLowerCase();
 			statements.add("last_name = '" + last_name + "'");
 		}
-		
+
 		if (year_of_study != null) {
 			year_of_study = year_of_study.toLowerCase();
 			statements.add("year_of_study.id = (SELECT id FROM YearOfStudy WHERE type = '" + year_of_study + "')");
 		}
-		
+
 		String query = "UPDATE Student SET ";
 
 		for (int i = 0; i < statements.size(); i++) {
@@ -373,13 +379,13 @@ public class ModelsService {
 				query += ", ";
 			}
 		}
-		
+
 		if (indexNumber == null) {
 			return false;
 		} else {
 			query += " WHERE index_number = '" + indexNumber + "'";
 		}
-		
+
 		return em.createQuery(query).executeUpdate() > 0;
 	}
 

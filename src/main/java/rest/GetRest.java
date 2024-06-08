@@ -8,7 +8,6 @@ import dto.AcademicTitleDTO;
 import dto.LectureDTO;
 import dto.ProfessorDTO;
 import dto.ShiftDTO;
-import dto.StudentDTO;
 import dto.StudentsWithCount;
 import dto.SubjectDTO;
 import dto.YearOfStudyDTO;
@@ -68,17 +67,14 @@ public class GetRest {
 		return m.getProfessorsByAcademicTitle((title_name == null) ? null : title_name.toLowerCase());
 	}
 
-//	@GET
-//	@Operation(summary = "Students enrolled in the course", description = "It lets the user see the <u>number</u> and <u>list</u> of students that are enrolled in the course that is lecturing the required subject."
-//			+ "<br><br>The user can search for all subjects by using the <u>/view/all-subjects</u> function."
-//			+ "<br><br><b>Warning</b>: The function requires the title of the subject to be written in the correct order with matching the case of the letters; otherwise, it may fail to find the desired result.")
-//	@Path("/view/students-on-subject")
-//	public StudentsWithCount getStudentsBySubject(@QueryParam("subject") String subject) {
-//		List<StudentDTO> students = m.getStudentsBySubject(subject);
-//		int numberOfStudents = students.size();
-//
-//		return new StudentsWithCount(students, numberOfStudents);
-//	} *izmjeniti logiku, ovo je stara metoda sa modelom StudentSubject*
+	@GET
+	@Operation(summary = "Students enrolled in the course", description = "It lets the user see the <u>number</u> and <u>list</u> of students that are enrolled in the course that is lecturing the required subject."
+			+ "<br><br>The user can search for all subjects by using the <u>/view/all-subjects</u> function."
+			+ "<br><br><b>Warning</b>: The function requires the title of the subject to be written in the correct order with matching the case of the letters; otherwise, it may fail to find the desired result.")
+	@Path("/view/students-on-subject")
+	public StudentsWithCount getStudentsBySubject(@QueryParam("subject") String subject) {
+		return m.getStudentsBySubject(subject);
+	}
 
 	@GET
 	@Operation(summary = "Time lecture of a subject", description = "It lets the user see a list of subjects that are being lectured before or after a specific time."
@@ -96,9 +92,6 @@ public class GetRest {
 			+ "<br><br><b>Warning</b>: The function supports case-insensitive matching, but it requires the study year to be in the correct order; otherwise, it may fail to find the desired result.")
 	@Path("/student-by-study-year")
 	public StudentsWithCount getStudentsByYearOfStudy(@QueryParam("year_of_study") String year_of_study) {
-		List<StudentDTO> students = m.getStudentsByYearOfStudy(year_of_study);
-		int numberOfStudents = students.size();
-
-		return new StudentsWithCount(students, numberOfStudents);
+		return m.getStudentsByYearOfStudy(year_of_study);
 	}
 }

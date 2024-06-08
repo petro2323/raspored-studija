@@ -5,6 +5,7 @@ import java.util.Set;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -37,7 +38,7 @@ public class Subject {
 	@NotNull(message = "Subject must have a semester!")
 	private Semester semester;
 
-	@ManyToMany(mappedBy = "subjects")
+	@ManyToMany(mappedBy = "subjects", fetch = FetchType.LAZY)
 	private Set<Student> students = new HashSet<Student>();
 
 	@OneToOne(cascade = CascadeType.ALL)
